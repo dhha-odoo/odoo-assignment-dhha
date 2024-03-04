@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+    <record id="inventory_inherit" model="ir.actions.act_window">
+        <field name="name">Inventory Inherit</field>
+        <field name="res_model">stock.picking.batch</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="inventory_view_form" model="ir.ui.view">
+        <field name="name">inventory.view.form</field>
+        <field name="model">stock.picking.batch</field>
+        <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_form"/>
+        <field name="mode">extension</field>
+        <field name="priority">15</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='scheduled_date']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+
+            <xpath expr="//field[@name='scheduled_date']" position="after">
+                <field name="dock_id"></field>
+                <field name="vehicle" placeholder="Vehicle Name"></field>
+                <field name="vehicle_category" placeholder="Vehicle Category"></field>
+                <field name="weight" widget="progressbar"/>
+                <field name="volume" widget="progressbar"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

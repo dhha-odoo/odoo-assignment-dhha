@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="stock.dock" id="dock_1">
+        <field name="name">Dock 1</field>
+    </record>
+    <record model="stock.dock" id="dock_2">
+        <field name="name">Dock 2</field>
+    </record>
+    <record model="stock.dock" id="dock_3">
+        <field name="name">Dock 3</field>
+    </record>
+    <record model="stock.dock" id="dock_4">
+        <field name="name">Dock 4</field>
+    </record>
+    <record model="stock.dock" id="dock_5">
+        <field name="name">Dock 5</field>
+    </record>
+
+</odoo>

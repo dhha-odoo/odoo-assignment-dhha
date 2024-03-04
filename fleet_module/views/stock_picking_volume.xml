@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+
+    <record id="inventory_inherit_1" model="ir.actions.act_window">
+        <field name="name">Inventory Inherit</field>
+        <field name="res_model">stock.picking</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+
+    <record id="volume_pick_tree" model="ir.ui.view">
+        <field name="name">inventory.page.volume.view.tree</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_done']" position="after">
+                <field name="volume"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
