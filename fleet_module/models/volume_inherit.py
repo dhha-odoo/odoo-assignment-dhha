@@ -3,16 +3,13 @@
 
 from odoo import fields, models, api
 
-
-class FleetInherit(models.Model):
+class VolumeInherit(models.Model):
     _inherit = "stock.picking"
     _description = "stock picking volume"
 
-    volume = fields.Integer("Volume")
+    volume = fields.Integer("Volume", compute="_compute_volume")
 
-    @api.depends('vehicle_category')
-    def _compute_weight(self):
+    @api.depends('move_line_ids.product_id.volume')
+    def _compute_volume(self):
         for record in self:
-            for pick in record:
-                for line in pick.move_line_ids:
-                    record.volume = line.product_id.volume
+            record.volume = sum(line.product_id.volume * line.quantity for line in record.move_line_ids)

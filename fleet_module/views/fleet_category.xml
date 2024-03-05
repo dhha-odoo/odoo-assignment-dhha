@@ -5,16 +5,11 @@
         <field name="name">fleet.vehicle.model.category.view.tree</field>
         <field name="model">fleet.vehicle.model.category</field>
         <field name="inherit_id" ref="fleet.fleet_vehicle_model_category_view_tree"/>
-        <field name="mode">extension</field>
-        <field name="priority" eval="15"/>
         <field name="arch" type="xml">
-            <xpath expr="//tree" position="replace">
-                <tree string="Fleet">
-                    <field name="name"/>
-                    <field name="max_weight"/>
-                    <field name="max_volume"/>
-                </tree>
-            </xpath>
+            <tree position="inside">
+                <field name="max_weight"/>
+                <field name="max_volume"/>
+            </tree>
         </field>
     </record>
 

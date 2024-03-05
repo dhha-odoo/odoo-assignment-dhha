@@ -2,6 +2,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import fields, models, api
+from datetime import timedelta
 
 
 class InventoryInherit(models.Model):
@@ -9,55 +10,48 @@ class InventoryInherit(models.Model):
     _description = "inventory inherit"
 
     dock_id = fields.Many2one("stock.dock", string="Dock")
-
-    vehicle = fields.Many2one("fleet.vehicle")
-
+    vehicle_id = fields.Many2one("fleet.vehicle")
     vehicle_category = fields.Many2one("fleet.vehicle.model.category",
-                                       string="Vehicle Category")
-
+                                       string="Vehicle Category", compute="_compute_vehicle_category", store=True)
     weight = fields.Float(string="Weight", readonly=True,
-                          compute="_compute_weight")
-
+                          compute="_compute_weight", store=True)
     volume = fields.Float(string="Volume", readonly=True,
-                          compute="_compute_volume")
+                          compute="_compute_weight", store=True)
+    total_weight_display = fields.Float(readonly=True)
+    total_volume_display = fields.Float(readonly=True)
+    deadline = fields.Date(
+        string="Scheduled Date + 5 Days", compute="_deadline", store=True)
 
-    @api.depends('vehicle_category')
+    @api.depends('picking_ids', 'move_line_ids', 'move_line_ids.product_id.weight', 'move_line_ids.product_id.volume', 'vehicle_category')
     def _compute_weight(self):
         for record in self:
-            total_weight = 0.0
-            total_volume = 0.0
-            avg_weight = 0.0
-            avg_volume = 0.0
-            if record.vehicle_category:
-                max_weight = record.vehicle_category.max_weight
-                max_volume = record.vehicle_category.max_volume
-                for pick in record:
-                    for line in pick.move_line_ids:
-                        total_weight += line.product_id.weight * line.quantity
-                        total_volume += line.product_id.volume * line.quantity
-                        # print(line.product_id.volume)
-                        # breakpoint()
+            total_weight = sum(line.product_id.weight *
+                               line.quantity for line in record.move_line_ids)
+            total_volume = sum(line.product_id.volume *
+                               line.quantity for line in record.move_line_ids)
 
-                # Calculate the average weight percentage
-                if max_weight > 0:
-                    avg_weight = (total_weight / max_weight) * 100
-                else:
-                    avg_weight = 0.0
+            record.total_weight_display, record.total_volume_display = total_weight, total_volume
 
-                # Calculate the average volume percentage
-                if max_volume > 0:
-                    avg_volume = (total_volume / max_volume) * 100
-                else:
-                    avg_volume = 0.0
+            max_weight = record.vehicle_category.max_weight or 1.0
+            max_volume = record.vehicle_category.max_volume or 1.0
 
-                record.weight = avg_weight
-                record.volume = avg_volume
-            else:
-                record.weight = 0.0
-                record.volume = 0.0
+            record.weight = (total_weight / max_weight) * \
+                100 if record.vehicle_category else 0.0
+            record.volume = (total_volume / max_volume) * \
+                100 if record.vehicle_category else 0.0
 
-    # def _compute_height(self):
-    #     for record in self:
-    #         # Calculate height progress based on your criteria
-    #         # For example, let's assume the maximum height is 10 and height is 5
-    #         record.height = (10000 / 10) * 100
+    @api.depends('scheduled_date')
+    def _deadline(self):
+        for record in self:
+            record.deadline = record.scheduled_date + \
+                timedelta(days=5) if record.scheduled_date else False
+
+    @api.depends('vehicle_id')
+    def _compute_vehicle_category(self):
+        for record in self:
+            record.vehicle_category = record.vehicle_id.category_id if record.vehicle_id else False
+
+    @api.depends('name', 'weight', 'volume')
+    def _compute_display_name(self):
+        for rec in self:
+            rec.display_name = f"{rec.name}: {rec.weight} kg, {rec.volume} m³"
