@@ -3,6 +3,7 @@
 
 from odoo import fields, models, api
 
+
 class FleetInherit(models.Model):
     _inherit = "fleet.vehicle.model.category"
     _description = "fleet vehical model category inherit"
@@ -13,13 +14,13 @@ class FleetInherit(models.Model):
     ]
 
     max_weight = fields.Integer(
-        string="Max Weight (kg)", copy=False, default=10)
+        string="Max Weight (kg)", default=10, required=True)
 
     max_volume = fields.Integer(
-        string="Max Volume (m³)", copy=False, default=10)
+        string="Max Volume (m³)", default=10, required=True)
 
-    # desplay the name for cars
-    @api.depends('name', 'max_weight', 'max_volume')
+    # display customization name by overriding this method of base
+    @api.depends('max_weight', 'max_volume')
     def _compute_display_name(self):
         for rec in self:
             rec.display_name = f"{rec.name} ({rec.max_weight} kg, {rec.max_volume} m³)"

@@ -4,12 +4,14 @@
 
 from odoo import fields, models
 
+
 class Dock(models.Model):
     _name = "stock.dock"
     _description = "Dock"
 
     name = fields.Char("Dock Name", required=True)
 
+    # _sql_constraints is faster then python constraints
     _sql_constraints = [
         ('unique_name', 'UNIQUE(name)', ('Dock name must be unique!')),
     ]
